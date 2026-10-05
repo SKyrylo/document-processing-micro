@@ -1,3 +1,3 @@
-from .paddle_ocr import PaddleOCR
+from .paddle_ocr import PaddleOCRPerformer
 
-__all__ = ["PaddleOCR"]
+__all__ = ["PaddleOCRPerformer"]
