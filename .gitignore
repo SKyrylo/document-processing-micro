@@ -1,3 +1,6 @@
+# Testing files folder
+test-files/
+
 # Python
 __pycache__/
 *.pyc
