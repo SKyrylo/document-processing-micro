@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { DbService } from './prisma/db.service.js';
+
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
+  constructor(
+    private readonly dbService: DbService,
+  ) {}
 }

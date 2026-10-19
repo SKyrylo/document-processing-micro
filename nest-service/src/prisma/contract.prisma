@@ -1,0 +1,30 @@
+// use prisma-8
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  documents     Document[]
+  refreshTokens RefreshToken[]
+  createdAt     TimestamptzString @default(now())
+  updatedAt     temporal.updatedAtString()
+}
+
+model Document {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+}
+
+model RefreshToken {
+  id          Int               @id @default(autoincrement())
+  hashedToken String            @unique
+  userId      Int
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   TimestamptzString
+  createdAt   TimestamptzString @default(now())
+}

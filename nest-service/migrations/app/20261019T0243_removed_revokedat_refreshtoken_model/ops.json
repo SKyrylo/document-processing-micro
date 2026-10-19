@@ -1,0 +1,44 @@
+[
+  {
+    "id": "dropColumn.RefreshToken.revokedAt",
+    "label": "Drop column \"revokedAt\" from \"RefreshToken\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "revokedAt",
+        "table": "RefreshToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"revokedAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "revokedAt"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"revokedAt\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshToken\" DROP COLUMN \"revokedAt\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"revokedAt\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "revokedAt"
+        ]
+      }
+    ]
+  }
+]
