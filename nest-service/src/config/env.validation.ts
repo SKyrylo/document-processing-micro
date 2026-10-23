@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { IsInt, IsNotEmpty, IsString, Min, MinLength, validateSync } from "class-validator";
+import { IsIn, IsInt, IsNotEmpty, IsString, Min, MinLength, validateSync } from "class-validator";
 
 class EnvironmentVariables {
     @IsString()
@@ -18,6 +18,25 @@ class EnvironmentVariables {
     @IsInt()
     @Min(1)
     REFRESH_TOKEN_TTL_SECONDS!: number;
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CLIENT_ID!: string;
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CLIENT_SECRET!: string;
+
+    @IsString()
+    @IsNotEmpty()
+    GOOGLE_CALLBACK_URL!: string;
+
+    @IsString()
+    @IsNotEmpty()
+    FRONTEND_URL!: string;
+
+    @IsIn(['test', 'production'])
+    NODE_ENV!: 'test' | 'production';
 }
 
 export function validateEnv(config: Record<string, unknown>) {

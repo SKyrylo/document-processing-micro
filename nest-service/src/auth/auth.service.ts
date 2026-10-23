@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { ConfigType } from "@nestjs/config";
 import jwtConfig from "../config/jwt.config.js";
 import { createHash } from "node:crypto";
-import { LogoutDto } from "./dtos/logout.dto.js";
+import { type GoogleUser } from "./strategies/google.strategy.js";
 
 
 @Injectable()
@@ -64,13 +64,49 @@ export class AuthService {
         }
     }
 
-    async logout(logoutDto: LogoutDto) {
-        const refreshToken = logoutDto.refreshToken;
+    async logout(refreshToken: string) {
         const hashedToken = createHash('sha256').update(refreshToken).digest('hex');
         await this.dbService.orm.RefreshToken.where({ hashedToken }).delete();
+    }
 
-        return {
-            message: "Logged out successfully",
+    async loginWithGoogle(google: GoogleUser) {
+        // 1. This Google account has logged in before -> same user again
+        const account = await this.dbService.orm.Account
+            .where({ provider: 'google', providerAccountId: google.googleId })
+            .first();
+
+        if (account) {
+            return this.generateUserTokens(account.userId);
+        }
+
+        // 2. First Google login: we need an email that Google has verified
+        if (!google.email || !google.emailVerified) {
+            throw new UnauthorizedException('Google email is not verified');
+        }
+
+        // 3. That email already has a password account -> do NOT merge automatically
+        const existing = await this.dbService.orm.User.where({ email: google.email }).first();
+        if (existing) {
+            throw new ConflictException('Email already registered');
+        }
+
+        // 4. Create user + account together (both succeed or both are rolled back)
+        try {
+            const user = await this.dbService.client.transaction(async (tx) => {
+                const created = await tx.orm.public.User.create({ email: google.email! });
+                await tx.orm.public.Account.create({
+                    provider: 'google',
+                    providerAccountId: google.googleId,
+                    userId: created.id,
+                });
+                return created;
+            });
+            return this.generateUserTokens(user.id);
+        } catch (error) {
+            if (this.isEmailTaken(error)) {
+                throw new ConflictException('Email already registered');
+            }
+            throw error;
         }
     }
 

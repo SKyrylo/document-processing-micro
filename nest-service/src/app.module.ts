@@ -11,6 +11,7 @@ import databaseConfig from './config/database.config.js';
 import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import googleConfig from './config/google.config.js';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       isGlobal: true,
       cache: true,
       validate: validateEnv,
-      load: [jwtConfig, databaseConfig]
+      load: [jwtConfig, databaseConfig, googleConfig]
     }),
     JwtModule.registerAsync({
       global: true,

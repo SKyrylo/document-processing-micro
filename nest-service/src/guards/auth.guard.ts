@@ -1,17 +1,15 @@
 import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { Observable } from "rxjs";
+import { ACCESS_COOKIE } from "../auth/auth-cookies.js";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(private readonly jwtService: JwtService) {}
 
-    canActivate(
-        context: ExecutionContext
-    ): boolean | Promise<boolean> | Observable<boolean> {
+    canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
+        const token = this.extractToken(request);
 
         if (!token) {
             throw new UnauthorizedException('Invalid token');
@@ -28,12 +26,15 @@ export class AuthGuard implements CanActivate {
         return true;
     }
 
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [bearer, token] = request.headers.authorization?.split(' ') ?? [];
-        if (bearer !== 'Bearer') {
-            throw new UnauthorizedException('Invalid token');
+    private extractToken(request: Request): string | undefined {
+        // 1. browser clients: httpOnly cookies
+        const cookieToken = request.cookies?.[ACCESS_COOKIE];
+        if (cookieToken) {
+            return cookieToken;
         }
 
-        return token;
+        // 2. fallback for scripts or tools that send "Authorization: Bearer <token>"
+        const [scheme, token] = request.headers.authorization?.split(' ') ?? [];
+        return scheme === 'Bearer' ? token : undefined;;
     }
 }

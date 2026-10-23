@@ -3,9 +3,10 @@
 model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
-  password      String
+  password      String?
   documents     Document[]
   refreshTokens RefreshToken[]
+  accounts      Account[]
   createdAt     TimestamptzString @default(now())
   updatedAt     temporal.updatedAtString()
 }
@@ -18,6 +19,17 @@ model Document {
   userId    Int
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
+}
+
+model Account {
+  id                Int               @id @default(autoincrement())
+  provider          String
+  providerAccountId String
+  userId            Int
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         TimestamptzString @default(now())
+
+  @@unique([provider, providerAccountId])
 }
 
 model RefreshToken {
