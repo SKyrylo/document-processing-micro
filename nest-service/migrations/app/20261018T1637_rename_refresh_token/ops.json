@@ -1,0 +1,113 @@
+[
+  {
+    "id": "renameColumn.RefreshToken.tokenHash",
+    "label": "Rename column \"RefreshToken\".\"tokenHash\" to \"token\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "token",
+        "table": "RefreshToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"tokenHash\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "tokenHash"
+        ]
+      },
+      {
+        "description": "ensure column \"token\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "token"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename column \"tokenHash\" to \"token\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshToken\" RENAME COLUMN \"tokenHash\" TO \"token\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"token\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "token"
+        ]
+      },
+      {
+        "description": "verify column \"tokenHash\" no longer exists",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "RefreshToken",
+          "tokenHash"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.public.RefreshToken.RefreshToken_tokenHash_key.rename",
+    "label": "Rename unique constraint \"RefreshToken_tokenHash_key\" to \"RefreshToken_token_key\" on \"RefreshToken\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "RefreshToken_token_key",
+        "table": "RefreshToken"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"RefreshToken_tokenHash_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RefreshToken_tokenHash_key",
+          "public",
+          "\"public\".\"RefreshToken\""
+        ]
+      },
+      {
+        "description": "ensure constraint \"RefreshToken_token_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RefreshToken_token_key",
+          "public",
+          "\"public\".\"RefreshToken\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "rename unique constraint \"RefreshToken_tokenHash_key\" to \"RefreshToken_token_key\"",
+        "sql": "ALTER TABLE \"public\".\"RefreshToken\" RENAME CONSTRAINT \"RefreshToken_tokenHash_key\" TO \"RefreshToken_token_key\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"RefreshToken_token_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RefreshToken_token_key",
+          "public",
+          "\"public\".\"RefreshToken\""
+        ]
+      }
+    ]
+  }
+]
