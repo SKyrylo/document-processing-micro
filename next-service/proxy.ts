@@ -4,7 +4,7 @@ import { toCookieOptions } from "./app/auth/cookie-options";
 
 const ACCESS_COOKIE = 'access_token';
 const REFRESH_COOKIE = 'refresh_token';
-const publicRoutes = ['/auth/login']
+const publicRoutes = ['/auth/login', '/auth/register']
 
 // Refresh tokens are single-use, but one page load fires several requests at once
 // (page, prefetches, ...). All of them carry the same old cookie, so they must share ONE refresh call.

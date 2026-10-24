@@ -5,7 +5,7 @@ import { LoginDto } from "./dtos/login.dto.js";
 import { JwtService } from "@nestjs/jwt";
 import { DbService } from "../prisma/db.service.js";
 import { v4 as uuidv4 } from "uuid";
-import type { ConfigType } from "@nestjs/config";
+import { ConfigService, type ConfigType } from "@nestjs/config";
 import jwtConfig from "../config/jwt.config.js";
 import { createHash } from "node:crypto";
 import { type GoogleUser } from "./strategies/google.strategy.js";
@@ -17,6 +17,7 @@ export class AuthService {
         @Inject(jwtConfig.KEY) private readonly jwt: ConfigType<typeof jwtConfig>,
         private jwtService: JwtService,
         private readonly dbService: DbService,
+        private readonly configService: ConfigService,
     ) {}
 
     async signup(signupDto: SignupDto) {
@@ -49,15 +50,14 @@ export class AuthService {
         const { email, password } = loginDto;
         const user = await this.dbService.orm.User.where({ email }).first();
         
-        const hash = user?.password ?? this.dummyHash;
-        const isPasswordValid = await bcrypt.compare(password, hash);
+        const realHash = user?.password ?? null;
+        const matches = await bcrypt.compare(password, realHash ?? this.dummyHash);
 
-        if (!user || !isPasswordValid) {
+        if (!user || !realHash || !matches) {
             throw new UnauthorizedException("Invalid credentials.")
         }
 
         const tokens = await this.generateUserTokens(user.id);
-
         return {
             ...tokens,
             userId: user.id,
@@ -153,5 +153,5 @@ export class AuthService {
         return e?.sqlState === '23505' && e?.constraint === 'User_email_key';
     }
 
-    private readonly dummyHash = bcrypt.hashSync('dummy-hash', 11);
+    private readonly dummyHash = bcrypt.hashSync(uuidv4(), 11);
 }

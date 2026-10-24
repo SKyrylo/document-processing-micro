@@ -1,5 +1,6 @@
 "use client";
 
+import { GoogleLoginButton } from "react-social-login-buttons";
 import login from "./login"
 import { useActionState } from "react";
 
@@ -28,6 +29,14 @@ export default function Login() {
                 <button type='submit' className='btn btn-primary'>
                     Login
                 </button>
+                <a href='/auth/register'>
+                    Register
+                </a>
+                <div className='flex'>
+                    <GoogleLoginButton onClick={() => 
+                        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
+                    } />
+                </div>
             </div>
         </form>
     )

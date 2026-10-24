@@ -75,7 +75,7 @@ export class AuthController {
         const googleUser = req.user as GoogleUser;
 
         if (!googleUser) {
-            return res.redirect(`${frontend}/login?error=google_cancelled`); //user pressed 'Cancel'
+            return res.redirect(`${frontend}/auth/login?error=google_cancelled`); //user pressed 'Cancel'
         }
 
         try {
@@ -84,7 +84,7 @@ export class AuthController {
             return res.redirect(frontend);
         } catch (error) {
             const code = (error as { status?: number }).status == 409 ? 'email_in_use' : 'google_failed';
-            return res.redirect(`${frontend}/login?error=${code}`);
+            return res.redirect(`${frontend}/auth/login?error=${code}`);
         }
     }
 }
