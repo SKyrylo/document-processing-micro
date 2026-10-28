@@ -1,0 +1,14 @@
+node_modules
+dist
+.prettierrc
+
+.git
+.gitattributes
+.gitignore
+
+*.md
+
+.env*
+!.env.example
+
+test

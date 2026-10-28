@@ -12,6 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import googleConfig from './config/google.config.js';
+import { HealthController } from './health/health.controller.js';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import googleConfig from './config/google.config.js';
     AuthModule,
     DbModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, HealthController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
